@@ -1,0 +1,6 @@
+#ifndef CONFIG_ZYBO_CHESS
+#define CONFIG_ZYBO_CHESS
+
+#define CONFIG_TIMER_PERIOD 100.0E-3
+
+#endif /* CONFIG_ZYBO_CHESS */

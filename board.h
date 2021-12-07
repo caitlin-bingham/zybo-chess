@@ -69,10 +69,12 @@ static inline board_move_t board_simplify_move(board_move_t move) {
 	return move;
 }
 
+board_t board_create_init();
+
 /* apply a move to a board */
 void board_apply_move(board_t *board, board_move_t move);
 
 /* get all possible moves, potentially including some illegal moves */
-board_move_list_t board_get_possible_moves(board_t *board);
+board_move_list_t board_get_possible_moves(const board_t *board);
 
 #endif
