@@ -2,321 +2,550 @@
 #include "display.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <utils.h>
 
-//y coord, top right of board square
-#define ROW_1 30 //0-30
-#define ROW_2 60
-#define ROW_3 90
+// y coord, top right of board square
+#define ROW_0 240 // 210-240
+#define ROW_1 210
+#define ROW_2 180
+#define ROW_3 150
 #define ROW_4 120
-#define ROW_5 150
-#define ROW_6 180
-#define ROW_7 210
-#define ROW_8 240 //210-240
-//x coord
-#define COL_1 30
-#define COL_2 60
-#define COL_3 90
-#define COL_4 120
-#define COL_5 150
-#define COL_6 180
-#define COL_7 210
-#define COL_8 240 //210-240
+#define ROW_5 90
+#define ROW_6 60
+#define ROW_7 30 // 0-30
+// x coord
+#define COL_0 30
+#define COL_1 60
+#define COL_2 90
+#define COL_3 120
+#define COL_4 150
+#define COL_5 180
+#define COL_6 210
+#define COL_7 240 // 210-240
 
-
+#define DIFF_IN_SIZE 5
 #define HALF_SQUARE_DIM SQUARE_DIM / 2
+#define PIECE_DIM SQUARE_DIM - DIFF_IN_SIZE
+#define PAWN_DIM HALF_SQUARE_DIM - DIFF_IN_SIZE
+#define ROOK_DIM SQUARE_DIM - (DIFF_IN_SIZE * 2)
+#define CHAR_SIZE 3
+#define CHAR_DIFF_IN_SIZE_X 7.5
+#define CHAR_DIFF_IN_SIZE_Y 4.5
 
-void chessDisplay_drawBoard(){
-    
+int16_t readBGColor(uint8_t row, uint8_t column) {
+  // if sum of row and column is odd draw it in "white" else it is
+  if ((row + column) % 2) {
+    return BG_WHITE;
+  } else {
+    return BG_BLACK;
+  }
 }
 
-//30x40 pixel for each square to have and 8x8 grid on a 240x320 display screen
+void drawGrid() {
+  int16_t square_color;
+  int16_t top_corner, left_corner;
 
-void chessDisplay_computeRegionNumber(uint8_t *row, uint8_t *column){
-    int16_t x, y;
-    uint8_t z;
-
-    display_getTouchedPoint(&x, &y, &z);
-    //determine what square (row, col) is being touched
-    // assign col number
-    if (x < COL_1) {
-        *column = COL_1;
-        //assign row number
-        if (y < ROW_1) {
-            *row = ROW_1;
-        } else if (y < ROW_2) {
-            *row = ROW_2;
-        } else if (y < ROW_3) {
-            *row = ROW_3;
-        } else if (y < ROW_4) {
-            *row = ROW_4;
-        } else if (y < ROW_5) {
-            *row = ROW_5;
-        } else if (y < ROW_6) {
-            *row = ROW_6;
-        } else if (y < ROW_7) {
-            *row = ROW_7;
-        } else if (y < ROW_8) {
-            *row = ROW_8;
-        }
-    } else if (x < COL_2) {
-        *column = COL_2;
-        //assign row number
-        if (y < ROW_1) {
-            *row = ROW_1;
-        } else if (y < ROW_2) {
-            *row = ROW_2;
-        } else if (y < ROW_3) {
-            *row = ROW_3;
-        } else if (y < ROW_4) {
-            *row = ROW_4;
-        } else if (y < ROW_5) {
-            *row = ROW_5;
-        } else if (y < ROW_6) {
-            *row = ROW_6;
-        } else if (y < ROW_7) {
-            *row = ROW_7;
-        } else if (y < ROW_8) {
-            *row = ROW_8;
-        }
-    } else if (x < COL_3) {
-        *column = COL_3;
-        //assign row number
-        if (y < ROW_1) {
-            *row = ROW_1;
-        } else if (y < ROW_2) {
-            *row = ROW_2;
-        } else if (y < ROW_3) {
-            *row = ROW_3;
-        } else if (y < ROW_4) {
-            *row = ROW_4;
-        } else if (y < ROW_5) {
-            *row = ROW_5;
-        } else if (y < ROW_6) {
-            *row = ROW_6;
-        } else if (y < ROW_7) {
-            *row = ROW_7;
-        } else if (y < ROW_8) {
-            *row = ROW_8;
-        }
-    } else if (x < COL_4) {
-        *column = COL_4;
-        //assign row number
-        if (y < ROW_1) {
-            *row = ROW_1;
-        } else if (y < ROW_2) {
-            *row = ROW_2;
-        } else if (y < ROW_3) {
-            *row = ROW_3;
-        } else if (y < ROW_4) {
-            *row = ROW_4;
-        } else if (y < ROW_5) {
-            *row = ROW_5;
-        } else if (y < ROW_6) {
-            *row = ROW_6;
-        } else if (y < ROW_7) {
-            *row = ROW_7;
-        } else if (y < ROW_8) {
-            *row = ROW_8;
-        }
-    } else if (x < COL_5) {
-        *column = COL_5;
-        //assign row number
-        if (y < ROW_1) {
-            *row = ROW_1;
-        } else if (y < ROW_2) {
-            *row = ROW_2;
-        } else if (y < ROW_3) {
-            *row = ROW_3;
-        } else if (y < ROW_4) {
-            *row = ROW_4;
-        } else if (y < ROW_5) {
-            *row = ROW_5;
-        } else if (y < ROW_6) {
-            *row = ROW_6;
-        } else if (y < ROW_7) {
-            *row = ROW_7;
-        } else if (y < ROW_8) {
-            *row = ROW_8;
-        }
-    } else if (x < COL_6) {
-        *column = COL_6;
-        //assign row number
-        if (y < ROW_1) {
-            *row = ROW_1;
-        } else if (y < ROW_2) {
-            *row = ROW_2;
-        } else if (y < ROW_3) {
-            *row = ROW_3;
-        } else if (y < ROW_4) {
-            *row = ROW_4;
-        } else if (y < ROW_5) {
-            *row = ROW_5;
-        } else if (y < ROW_6) {
-            *row = ROW_6;
-        } else if (y < ROW_7) {
-            *row = ROW_7;
-        } else if (y < ROW_8) {
-            *row = ROW_8;
-        }
-    } else if (x < COL_7) {
-        *column = COL_7;
-        //assign row number
-        if (y < ROW_1) {
-            *row = ROW_1;
-        } else if (y < ROW_2) {
-            *row = ROW_2;
-        } else if (y < ROW_3) {
-            *row = ROW_3;
-        } else if (y < ROW_4) {
-            *row = ROW_4;
-        } else if (y < ROW_5) {
-            *row = ROW_5;
-        } else if (y < ROW_6) {
-            *row = ROW_6;
-        } else if (y < ROW_7) {
-            *row = ROW_7;
-        } else if (y < ROW_8) {
-            *row = ROW_8;
-        }
-    } else if (x < COL_8) {
-       *column = COL_8;
-        //assign row number
-        if (y < ROW_1) {
-            *row = ROW_1;
-        } else if (y < ROW_2) {
-            *row = ROW_2;
-        } else if (y < ROW_3) {
-            *row = ROW_3;
-        } else if (y < ROW_4) {
-            *row = ROW_4;
-        } else if (y < ROW_5) {
-            *row = ROW_5;
-        } else if (y < ROW_6) {
-            *row = ROW_6;
-        } else if (y < ROW_7) {
-            *row = ROW_7;
-        } else if (y < ROW_8) {
-            *row = ROW_8;
-        }
+  // proceed through each row
+  for (int8_t i = 0; i <= EIGHTH_ROW; i++) {
+    // proceed through each column
+    for (int8_t j = 0; j <= EIGHTH_COL; j++) {
+      square_color = readBGColor((7 - i), j);
+      top_corner = i * SQUARE_DIM;
+      left_corner = j * SQUARE_DIM;
+      display_fillRect(left_corner, top_corner, SQUARE_DIM, SQUARE_DIM,
+                       square_color);
     }
+  }
 }
 
+void drawAllPieces() {
+  // WHITE
+  chessDisplay_displayPiece(PIECE_TYPE_PAWN | PIECE_COLOR_WHITE, SECOND_ROW,
+                            FIRST_COL, false);
+  chessDisplay_displayPiece(PIECE_TYPE_PAWN | PIECE_COLOR_WHITE, SECOND_ROW,
+                            SECOND_COL, false);
+  chessDisplay_displayPiece(PIECE_TYPE_PAWN | PIECE_COLOR_WHITE, SECOND_ROW,
+                            THIRD_COL, false);
+  chessDisplay_displayPiece(PIECE_TYPE_PAWN | PIECE_COLOR_WHITE, SECOND_ROW,
+                            FOURTH_COL, false);
+  chessDisplay_displayPiece(PIECE_TYPE_PAWN | PIECE_COLOR_WHITE, SECOND_ROW,
+                            FIFTH_COL, false);
+  chessDisplay_displayPiece(PIECE_TYPE_PAWN | PIECE_COLOR_WHITE, SECOND_ROW,
+                            SIXTH_COL, false);
+  chessDisplay_displayPiece(PIECE_TYPE_PAWN | PIECE_COLOR_WHITE, SECOND_ROW,
+                            SEVENTH_COL, false);
+  chessDisplay_displayPiece(PIECE_TYPE_PAWN | PIECE_COLOR_WHITE, SECOND_ROW,
+                            EIGHTH_COL, false);
+  chessDisplay_displayPiece(PIECE_TYPE_ROOK | PIECE_COLOR_WHITE, FIRST_ROW,
+                            FIRST_COL, false);
+  chessDisplay_displayPiece(PIECE_TYPE_ROOK | PIECE_COLOR_WHITE, FIRST_ROW,
+                            EIGHTH_COL, false);
+  chessDisplay_displayPiece(PIECE_TYPE_KNIGHT | PIECE_COLOR_WHITE, FIRST_ROW,
+                            SECOND_COL, false);
+  chessDisplay_displayPiece(PIECE_TYPE_KNIGHT | PIECE_COLOR_WHITE, FIRST_ROW,
+                            SEVENTH_COL, false);
+  chessDisplay_displayPiece(PIECE_TYPE_BISHOP | PIECE_COLOR_WHITE, FIRST_ROW,
+                            THIRD_COL, false);
+  chessDisplay_displayPiece(PIECE_TYPE_BISHOP | PIECE_COLOR_WHITE, FIRST_ROW,
+                            SIXTH_COL, false);
+  chessDisplay_displayPiece(PIECE_TYPE_QUEEN | PIECE_COLOR_WHITE, FIRST_ROW,
+                            FOURTH_COL, false);
+  chessDisplay_displayPiece(PIECE_TYPE_KING | PIECE_COLOR_WHITE, FIRST_ROW,
+                            FIFTH_COL, false);
 
-void displayPawn(uint8_t row, uint8_t column, bool erase){ 
-    int16_t display_color = DISPLAY_WHITE;
-    int16_t x_coord;
-    int16_t y_coord;
-    //if erase is true redraw the piece in black, otherwise use white
-    if (erase){
-        display_color = DISPLAY_BLACK;
-    } 
-    //determine coords of circle's center depending on row 
-    if (row == FIRST_ROW) {
-        x_coord = HALF_SQUARE_DIM;
-    } else if (row == SECOND_ROW) {
-        x_coord = ROW_2 - HALF_SQUARE_DIM;
-    } else if (row == THIRD_ROW) {
-        x_coord = ROW_3 - HALF_SQUARE_DIM;
-    } else if (row == FOURTH_ROW) {
-        x_coord = ROW_4 - HALF_SQUARE_DIM;
-    } else if (row == FIFTH_ROW) {
-        x_coord = ROW_5 - HALF_SQUARE_DIM;
-    } else if (row == SIXTH_ROW) {
-        x_coord = ROW_6 - HALF_SQUARE_DIM;
-    } else if (row == SEVENTH_ROW) {
-        x_coord = ROW_7 - HALF_SQUARE_DIM;
-    } else if (row == EIGHTH_ROW) {
-        x_coord = ROW_8 - HALF_SQUARE_DIM;
-    }
-    //determine coords of circle's center depending on col
-    if (col == FIRST_COL) {
-        y_coord = HALF_SQUARE_DIM;
-    } else if (col == SECOND_COL) {
-        y_coord = COL_2 - HALF_SQUARE_DIM;
-    } else if (col == THIRD_COL) {
-        y_coord = COL_3 - HALF_SQUARE_DIM;
-    } else if (col == FOURTH_COL) {
-        y_coord = COL_4 - HALF_SQUARE_DIM;
-    } else if (col == FIFTH_COL) {
-        y_coord = COL_5 - HALF_SQUARE_DIM;
-    } else if (col == SIXTH_COL) {
-        y_coord = COL_6 - HALF_SQUARE_DIM;
-    } else if (col == SEVENTH_COL) {
-        y_coord = COL_7 - HALF_SQUARE_DIM;
-    } else if (col == EIGHTH_COL) {
-        y_coord = COL_8 - HALF_SQUARE_DIM;
-    }
-
-    display_fillCircle(x_coord, y_coord, HALF_SQUARE_DIM, display_color);
+  // BLACK
+  chessDisplay_displayPiece(PIECE_TYPE_PAWN | PIECE_COLOR_BLACK, SEVENTH_ROW,
+                            FIRST_COL, false);
+  chessDisplay_displayPiece(PIECE_TYPE_PAWN | PIECE_COLOR_BLACK, SEVENTH_ROW,
+                            SECOND_COL, false);
+  chessDisplay_displayPiece(PIECE_TYPE_PAWN | PIECE_COLOR_BLACK, SEVENTH_ROW,
+                            THIRD_COL, false);
+  chessDisplay_displayPiece(PIECE_TYPE_PAWN | PIECE_COLOR_BLACK, SEVENTH_ROW,
+                            FOURTH_COL, false);
+  chessDisplay_displayPiece(PIECE_TYPE_PAWN | PIECE_COLOR_BLACK, SEVENTH_ROW,
+                            FIFTH_COL, false);
+  chessDisplay_displayPiece(PIECE_TYPE_PAWN | PIECE_COLOR_BLACK, SEVENTH_ROW,
+                            SIXTH_COL, false);
+  chessDisplay_displayPiece(PIECE_TYPE_PAWN | PIECE_COLOR_BLACK, SEVENTH_ROW,
+                            SEVENTH_COL, false);
+  chessDisplay_displayPiece(PIECE_TYPE_PAWN | PIECE_COLOR_BLACK, SEVENTH_ROW,
+                            EIGHTH_COL, false);
+  chessDisplay_displayPiece(PIECE_TYPE_ROOK | PIECE_COLOR_BLACK, EIGHTH_ROW,
+                            FIRST_COL, false);
+  chessDisplay_displayPiece(PIECE_TYPE_ROOK | PIECE_COLOR_BLACK, EIGHTH_ROW,
+                            EIGHTH_COL, false);
+  chessDisplay_displayPiece(PIECE_TYPE_KNIGHT | PIECE_COLOR_BLACK, EIGHTH_ROW,
+                            SECOND_COL, false);
+  chessDisplay_displayPiece(PIECE_TYPE_KNIGHT | PIECE_COLOR_BLACK, EIGHTH_ROW,
+                            SEVENTH_COL, false);
+  chessDisplay_displayPiece(PIECE_TYPE_BISHOP | PIECE_COLOR_BLACK, EIGHTH_ROW,
+                            THIRD_COL, false);
+  chessDisplay_displayPiece(PIECE_TYPE_BISHOP | PIECE_COLOR_BLACK, EIGHTH_ROW,
+                            SIXTH_COL, false);
+  chessDisplay_displayPiece(PIECE_TYPE_QUEEN | PIECE_COLOR_BLACK, EIGHTH_ROW,
+                            FOURTH_COL, false);
+  chessDisplay_displayPiece(PIECE_TYPE_KING | PIECE_COLOR_BLACK, EIGHTH_ROW,
+                            FIFTH_COL, false);
 }
 
-void displayRook(uint8_t row, uint8_t column, bool erase){
-    int16_t display_color = DISPLAY_WHITE;
-    //if erase is true redraw the piece in black, otherwise use white
-    if (erase){
-        display_color = DISPLAY_BLACK;
-    } 
-
-    
-
-  //  display_fillRect();
+void chessDisplay_drawBoard() {
+  display_init();
+  drawGrid();
+  drawAllPieces();
 }
 
-void displayKnight(uint8_t row, uint8_t column, bool erase){
-    int16_t display_color = DISPLAY_WHITE;
-    //if erase is true redraw the piece in black, otherwise use white
-    if (erase){
-        display_color = DISPLAY_BLACK;
-    } 
-  //  display_fillTriangle();
+void chessDisplay_touchScreencomputeBoardRowColumn(uint8_t *row,
+                                                   uint8_t *column) {
+  int16_t x, y;
+  uint8_t z;
+
+  display_getTouchedPoint(&x, &y, &z);
+  // determine what square (row, col) is being touched
+  // assign col number
+  if (x < COL_0) {
+    *column = FIRST_COL;
+  } else if (x < COL_1) {
+    *column = SECOND_COL;
+  } else if (x < COL_2) {
+    *column = THIRD_COL;
+  } else if (x < COL_3) {
+    *column = FOURTH_COL;
+  } else if (x < COL_4) {
+    *column = FIFTH_COL;
+  } else if (x < COL_5) {
+    *column = SIXTH_COL;
+  } else if (x < COL_6) {
+    *column = SEVENTH_COL;
+  } else if (x < COL_7) {
+    *column = EIGHTH_COL;
+  } else {
+    *column = -1;
+  }
+  // assign row number
+
+  if (y < ROW_7) {
+    *row = EIGHTH_ROW;
+  } else if (y < ROW_6) {
+    *row = SEVENTH_ROW;
+  } else if (y < ROW_5) {
+    *row = SIXTH_ROW;
+  } else if (y < ROW_4) {
+    *row = FIFTH_ROW;
+  } else if (y < ROW_3) {
+    *row = FOURTH_ROW;
+  } else if (y < ROW_2) {
+    *row = THIRD_ROW;
+  } else if (y < ROW_1) {
+    *row = SECOND_ROW;
+  } else if (y < ROW_0) {
+    *row = FIRST_ROW;
+  }
 }
 
-void displayBishop(uint8_t row, uint8_t column, bool erase){
-    int16_t display_color = DISPLAY_WHITE;
-    //if erase is true redraw the piece in black, otherwise use white
-    if (erase){
-        display_color = DISPLAY_BLACK;
-    } 
-  //  display_drawChar(); //letter B
+void displayPawn(uint8_t row, uint8_t col, int16_t color, bool erase) {
+  int16_t display_color, bg_color;
+  int16_t x_coord;
+  int16_t y_coord;
+
+  bg_color = readBGColor(row, col);
+  // if erase is true redraw the piece in black, otherwise use white
+  if (erase) {
+    display_color = bg_color;
+  } else {
+    display_color = color;
+  }
+  // determine coords of circle's center depending on row
+  if (row == FIRST_ROW) {
+    y_coord = ROW_0 - HALF_SQUARE_DIM;
+  } else if (row == SECOND_ROW) {
+    y_coord = ROW_1 - HALF_SQUARE_DIM;
+  } else if (row == THIRD_ROW) {
+    y_coord = ROW_2 - HALF_SQUARE_DIM;
+  } else if (row == FOURTH_ROW) {
+    y_coord = ROW_3 - HALF_SQUARE_DIM;
+  } else if (row == FIFTH_ROW) {
+    y_coord = ROW_4 - HALF_SQUARE_DIM;
+  } else if (row == SIXTH_ROW) {
+    y_coord = ROW_5 - HALF_SQUARE_DIM;
+  } else if (row == SEVENTH_ROW) {
+    y_coord = ROW_6 - HALF_SQUARE_DIM;
+  } else if (row == EIGHTH_ROW) {
+    y_coord = ROW_7 - HALF_SQUARE_DIM;
+  }
+  // determine coords of circle's center depending on col
+  if (col == FIRST_COL) {
+    x_coord = HALF_SQUARE_DIM;
+  } else if (col == SECOND_COL) {
+    x_coord = COL_1 - HALF_SQUARE_DIM;
+  } else if (col == THIRD_COL) {
+    x_coord = COL_2 - HALF_SQUARE_DIM;
+  } else if (col == FOURTH_COL) {
+    x_coord = COL_3 - HALF_SQUARE_DIM;
+  } else if (col == FIFTH_COL) {
+    x_coord = COL_4 - HALF_SQUARE_DIM;
+  } else if (col == SIXTH_COL) {
+    x_coord = COL_5 - HALF_SQUARE_DIM;
+  } else if (col == SEVENTH_COL) {
+    x_coord = COL_6 - HALF_SQUARE_DIM;
+  } else if (col == EIGHTH_COL) {
+    x_coord = COL_7 - HALF_SQUARE_DIM;
+  }
+
+  display_fillCircle(x_coord, y_coord, PAWN_DIM, display_color);
 }
 
-void displayKing(uint8_t row, uint8_t column, bool erase){
-    int16_t display_color = DISPLAY_WHITE;
-    //if erase is true redraw the piece in black, otherwise use white
-    if (erase){
-        display_color = DISPLAY_BLACK;
-    } 
-   // display_drawChar();  //letter K
+void displayRook(uint8_t row, uint8_t col, int16_t color, bool erase) {
+  int16_t display_color, bg_color;
+  int16_t x_coord;
+  int16_t y_coord;
+
+  bg_color = readBGColor(row, col);
+  // if erase is true redraw the piece in black, otherwise use white
+  if (erase) {
+    display_color = bg_color;
+  } else {
+    display_color = color;
+  }
+  // determine top left y coord of rect based on row
+  if (row == FIRST_ROW) {
+    y_coord = ROW_0 - SQUARE_DIM + DIFF_IN_SIZE;
+  } else if (row == SECOND_ROW) {
+    y_coord = ROW_1 - SQUARE_DIM + DIFF_IN_SIZE;
+  } else if (row == THIRD_ROW) {
+    y_coord = ROW_2 - SQUARE_DIM + DIFF_IN_SIZE;
+  } else if (row == FOURTH_ROW) {
+    y_coord = ROW_3 - SQUARE_DIM + DIFF_IN_SIZE;
+  } else if (row == FIFTH_ROW) {
+    y_coord = ROW_4 - SQUARE_DIM + DIFF_IN_SIZE;
+  } else if (row == SIXTH_ROW) {
+    y_coord = ROW_5 - SQUARE_DIM + DIFF_IN_SIZE;
+  } else if (row == SEVENTH_ROW) {
+    y_coord = ROW_6 - SQUARE_DIM + DIFF_IN_SIZE;
+  } else if (row == EIGHTH_ROW) {
+    y_coord = ROW_7 - SQUARE_DIM + DIFF_IN_SIZE;
+  }
+  // determine top left x coord of rect based on col
+  if (col == FIRST_COL) {
+    x_coord = COL_0 - SQUARE_DIM + DIFF_IN_SIZE;
+  } else if (col == SECOND_COL) {
+    x_coord = COL_1 - SQUARE_DIM + DIFF_IN_SIZE;
+  } else if (col == THIRD_COL) {
+    x_coord = COL_2 - SQUARE_DIM + DIFF_IN_SIZE;
+  } else if (col == FOURTH_COL) {
+    x_coord = COL_3 - SQUARE_DIM + DIFF_IN_SIZE;
+  } else if (col == FIFTH_COL) {
+    x_coord = COL_4 - SQUARE_DIM + DIFF_IN_SIZE;
+  } else if (col == SIXTH_COL) {
+    x_coord = COL_5 - SQUARE_DIM + DIFF_IN_SIZE;
+  } else if (col == SEVENTH_COL) {
+    x_coord = COL_6 - SQUARE_DIM + DIFF_IN_SIZE;
+  } else if (col == EIGHTH_COL) {
+    x_coord = COL_7 - SQUARE_DIM + DIFF_IN_SIZE;
+  }
+
+  display_fillRect(x_coord, y_coord, ROOK_DIM, ROOK_DIM, display_color);
 }
 
+void displayKnight(uint8_t row, uint8_t col, int16_t color, bool erase) {
+  int16_t display_color, bg_color;
+  int16_t x_coord1, x_coord2, x_coord3, center_x;
+  int16_t y_coord1, y_coord2, y_coord3, center_y;
 
-void displayQueen(uint8_t row, uint8_t column, bool erase){
-    int16_t display_color = DISPLAY_WHITE;
-    //if erase is true redraw the piece in black, otherwise use white
-    if (erase){
-        display_color = DISPLAY_BLACK;
-    } 
-  //  display_drawChar(); //letter Q
-}   
+  bg_color = readBGColor(row, col);
+  // if erase is true redraw the piece in black, otherwise use white
+  if (erase) {
+    display_color = bg_color;
+  } else {
+    display_color = color;
+  }
 
+  // determine y coords of square's center depending on row
+  if (row == FIRST_ROW) {
+    center_y = ROW_0 - HALF_SQUARE_DIM;
+  } else if (row == SECOND_ROW) {
+    center_y = ROW_1 - HALF_SQUARE_DIM;
+  } else if (row == THIRD_ROW) {
+    center_y = ROW_2 - HALF_SQUARE_DIM;
+  } else if (row == FOURTH_ROW) {
+    center_y = ROW_3 - HALF_SQUARE_DIM;
+  } else if (row == FIFTH_ROW) {
+    center_y = ROW_4 - HALF_SQUARE_DIM;
+  } else if (row == SIXTH_ROW) {
+    center_y = ROW_5 - HALF_SQUARE_DIM;
+  } else if (row == SEVENTH_ROW) {
+    center_y = ROW_6 - HALF_SQUARE_DIM;
+  } else if (row == EIGHTH_ROW) {
+    center_y = ROW_7 - HALF_SQUARE_DIM;
+  }
+  // determine x coords of square's center depending on col
+  if (col == FIRST_COL) {
+    center_x = HALF_SQUARE_DIM;
+  } else if (col == SECOND_COL) {
+    center_x = COL_1 - HALF_SQUARE_DIM;
+  } else if (col == THIRD_COL) {
+    center_x = COL_2 - HALF_SQUARE_DIM;
+  } else if (col == FOURTH_COL) {
+    center_x = COL_3 - HALF_SQUARE_DIM;
+  } else if (col == FIFTH_COL) {
+    center_x = COL_4 - HALF_SQUARE_DIM;
+  } else if (col == SIXTH_COL) {
+    center_x = COL_5 - HALF_SQUARE_DIM;
+  } else if (col == SEVENTH_COL) {
+    center_x = COL_6 - HALF_SQUARE_DIM;
+  } else if (col == EIGHTH_COL) {
+    center_x = COL_7 - HALF_SQUARE_DIM;
+  }
 
-void displayPiece(int8_t piece_type, uint8_t row, uint8_t column, bool erase){
-    if (piece_type == PIECE_TYPE_PAWN) {
-       displayPawn(row, column, erase);
-    } else if (piece_type == PIECE_TYPE_ROOK) {
-       displayRook(row, column, erase);
-    } else if (piece_type == PIECE_TYPE_KNIGHT) {
-       displayKnight(row, column, erase);
-    } else if (piece_type == PIECE_TYPE_BISHOP) {
-       displayBishop(row, column, erase);
-    } else if (piece_type == PIECE_TYPE_QUEEN) {
-       displayQueen(row, column, erase);
-    } else if (piece_type == PIECE_TYPE_KING) {
-       displayKing(row, column, erase);
-    }
+  x_coord1 = center_x;
+  x_coord2 = center_x - HALF_SQUARE_DIM + DIFF_IN_SIZE;
+  x_coord3 = center_x + HALF_SQUARE_DIM - DIFF_IN_SIZE;
+  y_coord1 = center_y - HALF_SQUARE_DIM + DIFF_IN_SIZE;
+  y_coord2 = center_y + HALF_SQUARE_DIM - DIFF_IN_SIZE;
+  y_coord3 = center_y + HALF_SQUARE_DIM - DIFF_IN_SIZE;
+
+  display_fillTriangle(x_coord1, y_coord1, x_coord2, y_coord2, x_coord3,
+                       y_coord3, display_color);
 }
 
+void displayBishop(uint8_t row, uint8_t col, int16_t color, bool erase) {
+  int16_t display_color, bg_color;
+  int16_t x_coord;
+  int16_t y_coord;
 
-void chessDisplay_possibleMoves(){
-   // display_drawCircle(DISPLAY_GREEN);
+  bg_color = readBGColor(row, col);
+  // if erase is true redraw the piece in black, otherwise use white
+  if (erase) {
+    display_color = bg_color;
+  } else {
+    display_color = color;
+  }
+  // determine top left y coord based on row
+  if (row == FIRST_ROW) {
+    y_coord = ROW_0 - SQUARE_DIM + CHAR_DIFF_IN_SIZE_Y;
+  } else if (row == SECOND_ROW) {
+    y_coord = ROW_1 - SQUARE_DIM + CHAR_DIFF_IN_SIZE_Y;
+  } else if (row == THIRD_ROW) {
+    y_coord = ROW_2 - SQUARE_DIM + CHAR_DIFF_IN_SIZE_Y;
+  } else if (row == FOURTH_ROW) {
+    y_coord = ROW_3 - SQUARE_DIM + CHAR_DIFF_IN_SIZE_Y;
+  } else if (row == FIFTH_ROW) {
+    y_coord = ROW_4 - SQUARE_DIM + CHAR_DIFF_IN_SIZE_Y;
+  } else if (row == SIXTH_ROW) {
+    y_coord = ROW_5 - SQUARE_DIM + CHAR_DIFF_IN_SIZE_Y;
+  } else if (row == SEVENTH_ROW) {
+    y_coord = ROW_6 - SQUARE_DIM + CHAR_DIFF_IN_SIZE_Y;
+  } else if (row == EIGHTH_ROW) {
+    y_coord = ROW_7 - SQUARE_DIM + CHAR_DIFF_IN_SIZE_Y;
+  }
+  // determine top left x coord based on col
+  if (col == FIRST_COL) {
+    x_coord = COL_0 - SQUARE_DIM + CHAR_DIFF_IN_SIZE_X;
+  } else if (col == SECOND_COL) {
+    x_coord = COL_1 - SQUARE_DIM + CHAR_DIFF_IN_SIZE_X;
+  } else if (col == THIRD_COL) {
+    x_coord = COL_2 - SQUARE_DIM + CHAR_DIFF_IN_SIZE_X;
+  } else if (col == FOURTH_COL) {
+    x_coord = COL_3 - SQUARE_DIM + CHAR_DIFF_IN_SIZE_X;
+  } else if (col == FIFTH_COL) {
+    x_coord = COL_4 - SQUARE_DIM + CHAR_DIFF_IN_SIZE_X;
+  } else if (col == SIXTH_COL) {
+    x_coord = COL_5 - SQUARE_DIM + CHAR_DIFF_IN_SIZE_X;
+  } else if (col == SEVENTH_COL) {
+    x_coord = COL_6 - SQUARE_DIM + CHAR_DIFF_IN_SIZE_X;
+  } else if (col == EIGHTH_COL) {
+    x_coord = COL_7 - SQUARE_DIM + CHAR_DIFF_IN_SIZE_X;
+  }
+  display_setCursor(x_coord, y_coord);
+  display_setTextSize(CHAR_SIZE);
+  display_setTextColor(display_color);
+  display_println("B");
+}
+
+void displayKing(uint8_t row, uint8_t col, int16_t color, bool erase) {
+  int16_t display_color, bg_color;
+  int16_t x_coord;
+  int16_t y_coord;
+
+  bg_color = readBGColor(row, col);
+  // if erase is true redraw the piece in black, otherwise use white
+  if (erase) {
+    display_color = bg_color;
+  } else {
+    display_color = color;
+  }
+  // determine top left y coord based on row
+  if (row == FIRST_ROW) {
+    y_coord = ROW_0 - SQUARE_DIM + CHAR_DIFF_IN_SIZE_Y;
+  } else if (row == SECOND_ROW) {
+    y_coord = ROW_1 - SQUARE_DIM + CHAR_DIFF_IN_SIZE_Y;
+  } else if (row == THIRD_ROW) {
+    y_coord = ROW_2 - SQUARE_DIM + CHAR_DIFF_IN_SIZE_Y;
+  } else if (row == FOURTH_ROW) {
+    y_coord = ROW_3 - SQUARE_DIM + CHAR_DIFF_IN_SIZE_Y;
+  } else if (row == FIFTH_ROW) {
+    y_coord = ROW_4 - SQUARE_DIM + CHAR_DIFF_IN_SIZE_Y;
+  } else if (row == SIXTH_ROW) {
+    y_coord = ROW_5 - SQUARE_DIM + CHAR_DIFF_IN_SIZE_Y;
+  } else if (row == SEVENTH_ROW) {
+    y_coord = ROW_6 - SQUARE_DIM + CHAR_DIFF_IN_SIZE_Y;
+  } else if (row == EIGHTH_ROW) {
+    y_coord = ROW_7 - SQUARE_DIM + CHAR_DIFF_IN_SIZE_Y;
+  }
+  // determine top left x coord based on col
+  if (col == FIRST_COL) {
+    x_coord = COL_0 - SQUARE_DIM + CHAR_DIFF_IN_SIZE_X;
+  } else if (col == SECOND_COL) {
+    x_coord = COL_1 - SQUARE_DIM + CHAR_DIFF_IN_SIZE_X;
+  } else if (col == THIRD_COL) {
+    x_coord = COL_2 - SQUARE_DIM + CHAR_DIFF_IN_SIZE_X;
+  } else if (col == FOURTH_COL) {
+    x_coord = COL_3 - SQUARE_DIM + CHAR_DIFF_IN_SIZE_X;
+  } else if (col == FIFTH_COL) {
+    x_coord = COL_4 - SQUARE_DIM + CHAR_DIFF_IN_SIZE_X;
+  } else if (col == SIXTH_COL) {
+    x_coord = COL_5 - SQUARE_DIM + CHAR_DIFF_IN_SIZE_X;
+  } else if (col == SEVENTH_COL) {
+    x_coord = COL_6 - SQUARE_DIM + CHAR_DIFF_IN_SIZE_X;
+  } else if (col == EIGHTH_COL) {
+    x_coord = COL_7 - SQUARE_DIM + CHAR_DIFF_IN_SIZE_X;
+  }
+  display_setCursor(x_coord, y_coord);
+  display_setTextSize(CHAR_SIZE);
+  display_setTextColor(display_color);
+  display_println("K");
+}
+
+void displayQueen(uint8_t row, uint8_t col, int16_t color, bool erase) {
+  int16_t display_color, bg_color;
+  int16_t x_coord;
+  int16_t y_coord;
+
+  bg_color = readBGColor(row, col);
+  // if erase is true redraw the piece in black, otherwise use white
+  if (erase) {
+    display_color = bg_color;
+  } else {
+    display_color = color;
+  }
+  // determine top left y coord based on row
+  if (row == FIRST_ROW) {
+    y_coord = ROW_0 - SQUARE_DIM + CHAR_DIFF_IN_SIZE_Y;
+  } else if (row == SECOND_ROW) {
+    y_coord = ROW_1 - SQUARE_DIM + CHAR_DIFF_IN_SIZE_Y;
+  } else if (row == THIRD_ROW) {
+    y_coord = ROW_2 - SQUARE_DIM + CHAR_DIFF_IN_SIZE_Y;
+  } else if (row == FOURTH_ROW) {
+    y_coord = ROW_3 - SQUARE_DIM + CHAR_DIFF_IN_SIZE_Y;
+  } else if (row == FIFTH_ROW) {
+    y_coord = ROW_4 - SQUARE_DIM + CHAR_DIFF_IN_SIZE_Y;
+  } else if (row == SIXTH_ROW) {
+    y_coord = ROW_5 - SQUARE_DIM + CHAR_DIFF_IN_SIZE_Y;
+  } else if (row == SEVENTH_ROW) {
+    y_coord = ROW_6 - SQUARE_DIM + CHAR_DIFF_IN_SIZE_Y;
+  } else if (row == EIGHTH_ROW) {
+    y_coord = ROW_7 - SQUARE_DIM + CHAR_DIFF_IN_SIZE_Y;
+  }
+  // determine top left x coord based on col
+  if (col == FIRST_COL) {
+    x_coord = COL_0 - SQUARE_DIM + CHAR_DIFF_IN_SIZE_X;
+  } else if (col == SECOND_COL) {
+    x_coord = COL_1 - SQUARE_DIM + CHAR_DIFF_IN_SIZE_X;
+  } else if (col == THIRD_COL) {
+    x_coord = COL_2 - SQUARE_DIM + CHAR_DIFF_IN_SIZE_X;
+  } else if (col == FOURTH_COL) {
+    x_coord = COL_3 - SQUARE_DIM + CHAR_DIFF_IN_SIZE_X;
+  } else if (col == FIFTH_COL) {
+    x_coord = COL_4 - SQUARE_DIM + CHAR_DIFF_IN_SIZE_X;
+  } else if (col == SIXTH_COL) {
+    x_coord = COL_5 - SQUARE_DIM + CHAR_DIFF_IN_SIZE_X;
+  } else if (col == SEVENTH_COL) {
+    x_coord = COL_6 - SQUARE_DIM + CHAR_DIFF_IN_SIZE_X;
+  } else if (col == EIGHTH_COL) {
+    x_coord = COL_7 - SQUARE_DIM + CHAR_DIFF_IN_SIZE_X;
+  }
+  display_setCursor(x_coord, y_coord);
+  display_setTextSize(CHAR_SIZE);
+  display_setTextColor(display_color);
+  display_println("Q");
+}
+
+void chessDisplay_displayPiece(piece_t class, uint8_t row, uint8_t column,
+                               bool erase) {
+  piece_type_t type = piece_type(class);
+  int16_t color =
+      (piece_color(class) == PIECE_COLOR_BLACK) ? DISPLAY_BLACK : DISPLAY_WHITE;
+
+  if (type == PIECE_TYPE_PAWN) {
+    displayPawn(row, column, color, erase);
+  } else if (type == PIECE_TYPE_ROOK) {
+    displayRook(row, column, color, erase);
+  } else if (type == PIECE_TYPE_KNIGHT) {
+    displayKnight(row, column, color, erase);
+  } else if (type == PIECE_TYPE_BISHOP) {
+    displayBishop(row, column, color, erase);
+  } else if (type == PIECE_TYPE_QUEEN) {
+    displayQueen(row, column, color, erase);
+  } else if (type == PIECE_TYPE_KING) {
+    displayKing(row, column, color, erase);
+  }
+}
+
+// show where player can move to depending on piece type
+void chessDisplay_possibleMoves() {
+  // display_drawCircle(DISPLAY_GREEN);
+}
+
+void chessDisplay_runTest() {
+  int8_t row, column;
+  display_init();
+  display_fillScreen(DISPLAY_BLACK);
+  chessDisplay_drawBoard();
+  chessDisplay_displayPiece(PIECE_TYPE_QUEEN | PIECE_COLOR_WHITE, FIRST_ROW,
+                            FOURTH_COL, true);
+  chessDisplay_displayPiece(PIECE_TYPE_PAWN | PIECE_COLOR_WHITE, SECOND_ROW,
+                            SEVENTH_COL, true);
+  display_clearOldTouchData();
+  utils_msDelay(50);
+  chessDisplay_touchScreencomputeBoardRowColumn(&row, &column);
+  printf("row: %d col: %d\n", row, column);
 }
