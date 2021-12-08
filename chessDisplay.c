@@ -130,6 +130,7 @@ void drawAllPieces() {
 
 void chessDisplay_drawBoard() {
   display_init();
+  display_fillScreen(DISPLAY_BLACK);
   drawGrid();
   drawAllPieces();
 }
