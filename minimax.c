@@ -10,8 +10,10 @@
 #define SCORE_OVERFLOW_MAX INT_MAX
 #define SCORE_OVERFLOW_MIN INT_MIN
 
-#define SCORE_DEAD_THRESHOLD 100
-#define MINIMAX_DEPTH 4
+#define MAT_VALUE_MULTIPLIER 10
+
+#define SCORE_DEAD_THRESHOLD (1000 * MAT_VALUE_MULTIPLIER)
+#define MINIMAX_DEPTH 6
 
 typedef int32_t minimax_score_t;
 
@@ -22,7 +24,7 @@ static inline board_t copy_board(const board_t *board) {
 }
 
 static inline minimax_score_t score_board(const board_t *board) {
-	return board->rel_mat_value_w_b;
+	return board->rel_mat_value_w_b * MAT_VALUE_MULTIPLIER;
 }
 
 
@@ -32,28 +34,30 @@ static inline bool king_is_dead(minimax_score_t minimax_score) {
 
 static minimax_score_t alphabeta(const board_t *board, int depth, minimax_score_t alpha, minimax_score_t beta)
 {
-	/* determine whether we have reached the death of the king (illegal, but useful) */
-	minimax_score_t current_score = score_board(board);
-
-	if (depth == 0 || king_is_dead(current_score))
-		return current_score;
-
-	const bool maximizing = board->last_player_is_white;
 	--depth;
 
-	//TODO: convert to pointer function?
-	board_move_list_t moves = board_get_possible_moves(board);
+	board_move_list_t move_list;
+	board_get_possible_moves(board, &move_list);
 
-	// find best move
-	int best_move_index = -1;
+	const bool maximizing = !board->last_player_is_white;
 	minimax_score_t value = maximizing? SCORE_OVERFLOW_MIN : SCORE_OVERFLOW_MAX;
 
-	for (int i = 0; i < moves.length; i++) {
+	for (int i = 0; i < move_list.length; i++) {
 			//TODO: convert to pointer function?
 			board_t new_board = copy_board(board);
-			board_apply_move(&new_board, moves.moves[i]);
-			/* recurse */
-			minimax_score_t new_value = alphabeta(&new_board, depth, alpha, beta);
+			board_apply_move(&new_board, move_list.moves[i]);
+
+			/* score board here to avoid excess recursion */
+			minimax_score_t new_value = score_board(&new_board);
+
+			/* determine whether we have reached the death of the king (illegal, but useful) */
+			if (king_is_dead(new_value)) {
+				/* prefer earlier checkmate to later checkmate */
+				new_value = maximizing? new_value + depth * 20 : new_value - depth * 20;
+			} else if (depth > 0) {
+				/* recurse */
+				new_value = alphabeta(&new_board, depth - 1, alpha, beta);
+			}
 
 			/* accept/reject new_value */
 			if (maximizing) {
@@ -69,84 +73,19 @@ static minimax_score_t alphabeta(const board_t *board, int depth, minimax_score_
 				break;
 	}
 	return value;
-
-	// if (!kingAlive())
-	// 	return CHECKMATE;
-
-
-	// int begin, end;
-	// if (next_turn==WHITE) {
-	// 	begin=17;
-	// 	end=32;
-	// } else {
-	// 	begin=1;
-	// 	end=16;
-	// }
-
-	// /* next_turn is the turn that we are currently analyzing */
-	// const bool maximizing = (next_turn == BLACK);
-
-	// /* minimax with alpha-beta pruning */
-	// minimax_score_t value = (maximizing? LLONG_MIN : LLONG_MAX);
-
-	// /* iterate through pieces */
-	// /* heuristic: iterate backward because non-pawn pieces are generally more important */
-	// for (int i = end; i >= begin; --i) {
-	// 	const Piece& p=pieces[i];
-	// 	if (!p.alive()) continue;
-
-	// 	/* iterate through possible moves */
-	// 	for (int j=p.movestart; j<p.moveend; ++j) {
-	// 		/* variable for minimax value of selected move */
-	// 		minimax_score_t newpos_value;
-
-	// 		/* generate position corresponding to potential move */
-	// 		if (depth > 0) {
-	// 			Position newpos(*this);
-	// 			newpos.makeMove(newpos.pieces[i],newpos.moves[j]);
-
-	// 			/* lookup result in hash table */
-	// 			BoardState state = newpos.toBoardState(depth);
-	// 			uint32_t hash = ttable.genHash(state);
-	// 			newpos_value = ttable.lookup(hash, state);
-	// 			if (newpos_value == TTable::LOOKUP_FAILED) {
-	// 				/* hash lookup failed, so perform look-ahead */
-	// 				newpos_value = newpos.minimax_alphabeta(depth, alpha, beta);
-	// 				ttable.store(hash, BoardEntry(state, newpos_value));
-	// 			}
-	// 		} else {
-	// 			newpos_value = pseudoMakeMove(pieces[i],moves[j]);
-	// 		}
-
-	// 		/* accept/reject newpos_value */
-	// 		if (maximizing) {
-	// 			value = MAX(value, newpos_value);
-	// 			alpha = MAX(alpha, value);
-	// 		} else {
-	// 			value = MIN(value, newpos_value);
-	// 			beta = MIN(beta, value);
-	// 		}
-
-	// 		/* are we done yet? */
-	// 		if (beta <= alpha)
-	// 			break;
-	// 	}
-	// }
-
-	// return value;
 }
 
 // check for check/checkmate/stalemate
 minimax_state_t minimax_get_board_state(const board_t *board)
 {
 	// checkmate/stalemate (ambiguous)
-	minimax_score_t score_forward_2 = (alphabeta(board, 1, SCORE_OVERFLOW_MIN, SCORE_OVERFLOW_MAX));
+	minimax_score_t score_forward_2 = (alphabeta(board, 2, SCORE_OVERFLOW_MIN, SCORE_OVERFLOW_MAX));
 	bool game_over = king_is_dead(score_forward_2);
 
 	// check
 	board_t null_move_board = copy_board(board);
 	null_move_board.last_player_is_white = ! board->last_player_is_white;
-	minimax_score_t score_forward_null = alphabeta(board, 1, SCORE_OVERFLOW_MIN, SCORE_OVERFLOW_MAX);
+	minimax_score_t score_forward_null = alphabeta(&null_move_board, 1, SCORE_OVERFLOW_MIN, SCORE_OVERFLOW_MAX);
 	bool in_check = king_is_dead(score_forward_null);
 
 	if (game_over) {
@@ -158,44 +97,51 @@ minimax_state_t minimax_get_board_state(const board_t *board)
 	return MINIMAX_NORMAL;
 }
 
-static inline minimax_score_t rate_move(const board_t *board, board_move_t move)
+static inline minimax_score_t rate_move(const board_t *board, board_move_t move, minimax_score_t alpha, minimax_score_t beta)
 {
 	board_t new_board = copy_board(board);
 	board_apply_move(&new_board, move);
-	return alphabeta(&new_board, MINIMAX_DEPTH, SCORE_OVERFLOW_MIN, SCORE_OVERFLOW_MAX);
+	return alphabeta(&new_board, MINIMAX_DEPTH - 1, alpha, beta);
 }
 
 board_move_t minimax_get_best_move(const board_t *board)
 {
+	const bool maximizing = !board->last_player_is_white;
 
-	minimax_score_t current_score = score_board(board);
-	const bool maximizing = board->last_player_is_white;
+	board_move_list_t move_list;
+	board_get_possible_moves(board, &move_list);
 
-	//TODO: convert to pointer function?
-	board_move_list_t move_list = board_get_possible_moves(board);
+	minimax_score_t alpha = SCORE_OVERFLOW_MIN;
+	minimax_score_t beta = SCORE_OVERFLOW_MAX;
 
 	// find best move
 	int best_move_index = -1;
 	minimax_score_t best_move_value = maximizing? SCORE_OVERFLOW_MIN : SCORE_OVERFLOW_MAX;
 
 	for (int i = 0; i < move_list.length; i++) {
-		minimax_score_t new_value = rate_move(board, move_list.moves[i]);
+		minimax_score_t new_value = rate_move(board, move_list.moves[i], alpha, beta);
+		/* accept/reject new_value */
 		if (maximizing) {
 			if (new_value > best_move_value) {
 				best_move_index = i;
-				new_value = best_move_value;
+				best_move_value = new_value;
+				alpha = best_move_value;
 			}
 		} else {
 			if (new_value < best_move_value) {
 				best_move_index = i;
-				new_value = best_move_value;
+				best_move_value = new_value;
+				beta = best_move_value;
 			}
 		}
+		/* are we done yet? */
+		if (beta <= alpha)
+			break;
 	}
 	return move_list.moves[best_move_index];
 }
 
-void minimax_remove_illegal_moves(const board_t *board, board_move_list_t *move_list)
+static void minimax_remove_illegal_moves(const board_t *board, board_move_list_t *move_list)
 {
 	int i = 0;
 	while (i < move_list->length) {
@@ -227,4 +173,12 @@ void minimax_remove_illegal_moves(const board_t *board, board_move_list_t *move_
 inline tinybool minimax_is_game_over(const board_t *board) {
   minimax_state_t state = minimax_get_board_state(board);
   return state == MINIMAX_CHECKMATE || state == MINIMAX_DRAW;
+
+board_move_list_t minimax_get_legal_moves(const board_t *board)
+{
+	// board_move_list_t moves = board_get_possible_moves(board);
+	board_move_list_t move_list;
+	board_get_possible_moves(board, &move_list);
+	minimax_remove_illegal_moves(board, &move_list);
+	return move_list;
 }

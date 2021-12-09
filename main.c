@@ -11,7 +11,20 @@
 // Compute timer load value.
 #define TIMER_LOAD_VALUE ((CONFIG_TIMER_PERIOD * TIMER_CLOCK_FREQUENCY) - 1.0)
 
+static volatile int nest_depth = 0;
+
 void tick_all() {
+  // if (nest_depth > 0) {
+  printf("ISR nesting depth: %d\n", nest_depth);
+  // }
+
+  ++nest_depth;
+  // utils_msleep(120);
+  printf("pre-delay\n");
+  utils_msDelay(1000);
+  printf("post-delay\n");
+  --nest_depth;
+
   // TODO: fill
 }
 
