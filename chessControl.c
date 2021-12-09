@@ -249,7 +249,7 @@ void chessControl_tick() {
     break;
 
   case update_board_st:
-    if (MINIMAX_is_game_over(&board)) {
+    if (minimax_is_game_over(&board)) {
       currentState = game_over_st;
       PRINT_MSG(GAME_OVER_MSG)
     } else
