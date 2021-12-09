@@ -14,6 +14,6 @@ board_move_t minimax_get_best_move(const board_t *board);
 minimax_state_t minimax_get_board_state(const board_t *board);
 void minimax_remove_illegal_moves(const board_t *board, board_move_list_t *move_list);
 
-inline bool minimax_is_game_over(const board_t *board);
+inline tinybool minimax_is_game_over(const board_t *board);
 
 #endif
