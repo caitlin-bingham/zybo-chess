@@ -531,15 +531,29 @@ void chessDisplay_displayPiece(piece_t class, uint8_t row, uint8_t column,
   }
 }
 
-// show where player can move to depending on piece type
-void chessDisplay_possibleMoves() {
-  // display_drawCircle(DISPLAY_GREEN);
+void chessDisplay_pieceChosen(piece_t class, uint8_t row, uint8_t column,
+                              bool erase) {
+  piece_type_t type = piece_type(class);
+
+  if (type == PIECE_TYPE_PAWN) {
+    displayPawn(row, column, DISPLAY_GREEN, erase);
+  } else if (type == PIECE_TYPE_ROOK) {
+    displayRook(row, column, DISPLAY_GREEN, erase);
+  } else if (type == PIECE_TYPE_KNIGHT) {
+    displayKnight(row, column, DISPLAY_GREEN, erase);
+  } else if (type == PIECE_TYPE_BISHOP) {
+    displayBishop(row, column, DISPLAY_GREEN, erase);
+  } else if (type == PIECE_TYPE_QUEEN) {
+    displayQueen(row, column, DISPLAY_GREEN, erase);
+  } else if (type == PIECE_TYPE_KING) {
+    displayKing(row, column, DISPLAY_GREEN, erase);
+  }
 }
 
 void chessDisplay_runTest() {
   int8_t row, column;
-  display_init();
-  display_fillScreen(DISPLAY_BLACK);
+  // display_init();
+  // display_fillScreen(DISPLAY_BLACK);
   chessDisplay_drawBoard();
   chessDisplay_displayPiece(PIECE_TYPE_QUEEN | PIECE_COLOR_WHITE, FIRST_ROW,
                             FOURTH_COL, true);
@@ -548,5 +562,6 @@ void chessDisplay_runTest() {
   display_clearOldTouchData();
   utils_msDelay(50);
   chessDisplay_touchScreencomputeBoardRowColumn(&row, &column);
+  chessDisplay_pieceChosen(PIECE_TYPE_KNIGHT, row, column, false);
   printf("row: %d col: %d\n", row, column);
 }
