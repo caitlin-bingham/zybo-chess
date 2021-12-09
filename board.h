@@ -47,13 +47,12 @@ typedef struct {
 
 typedef struct {
 	piece_t pieces[8][8];
-	board_move_t last_move;
+	board_move_t last_move; //TODO: change?
 	board_mat_value_t rel_mat_value_w_b;
 	tinybool last_player_is_white;
 	uint8_t flags;
 } board_t;
 
-//TODO: figure out whether this is the right way to do this
 static inline piece_type_t piece_type(piece_t piece) {
 	return piece & PIECE_TYPE_MASK;
 }
@@ -75,6 +74,7 @@ board_t board_create_init();
 void board_apply_move(board_t *board, board_move_t move);
 
 /* get all possible moves, potentially including some illegal moves */
-board_move_list_t board_get_possible_moves(const board_t *board);
+// board_move_list_t board_get_possible_moves(const board_t *board);
+void board_get_possible_moves(const board_t *board, board_move_list_t *move_list);
 
 #endif
